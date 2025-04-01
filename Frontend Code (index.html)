@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handwriting Recognition</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        input[type="file"] {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Handwriting Recognition Tool</h2>
+        <input type="file" id="imageInput" accept="image/*">
+        <button onclick="uploadImage()">Upload & Process</button>
+        <div id="output">
+            <h3>Original Image</h3>
+            <img id="originalImg" src="" alt="Original Image">
+            <h3>Reconstructed Image</h3>
+            <img id="reconstructedImg" src="" alt="Reconstructed Image">
+        </div>
+    </div>
+
+    <script>
+        function uploadImage() {
+            const input = document.getElementById('imageInput');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('originalImg').src = e.target.result;
+                    processImage(file);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function processImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('http://localhost:5000/process', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('reconstructedImg').src = 'data:image/png;base64,' + data.reconstructed;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
